@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine, Princess ❤️</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+    text-align: center;
+    background: radial-gradient(circle at 50% 50%, #ffb6c1, #ff69b4, #ff4e88, #ff9a9e);
+    animation: gradientShift 15s ease infinite;
+    background-size: 200% 200%;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.floating-art {
+    position: absolute;
+    font-size: 50px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+    animation: driftUp linear infinite, pop 3s ease-in-out infinite alternate;
+}
+
+@keyframes driftUp {
+    0% { transform: translateY(100vh) rotate(0deg); opacity:0.3; }
+    50% { opacity:0.6; }
+    100% { transform: translateY(-50px) rotate(360deg); opacity:0.3; }
+}
+
+@keyframes pop {
+    0% { transform: scale(1); opacity:0.3; }
+    50% { transform: scale(1.2); opacity:0.6; }
+    100% { transform: scale(1); opacity:0.3; }
+}
+
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+h1 {
+    font-size: clamp(2em, 8vw, 3.5em);
+    margin-bottom: 15px;
+    opacity: 0;
+    animation: fadeSlideUp 1.5s ease forwards;
+}
+
+p {
+    font-size: clamp(1em, 4vw, 1.6em);
+    margin-bottom: 30px;
+    line-height: 1.5;
+    opacity: 0;
+    animation: fadeSlideUp 1.5s ease forwards;
+    animation-delay: 0.5s;
+}
+
+.polaroid {
+    width: clamp(220px, 50%, 350px);
+    background: white;
+    padding: 15px 15px 35px;
+    margin-top: 25px;
+    border-radius: 6px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+.polaroid img {
+    width: 100%;
+    border-radius: 4px;
+    display: block;
+}
+
+.polaroid .caption {
+    color: #555;
+    font-size: clamp(0.9em, 2vw, 1em);
+    margin-top: 12px;
+    line-height: 1.4;
+}
+
+.buttons-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    margin-top: 20px;
+}
+
+#yesBtn, #noBtn {
+    padding: 18px 36px;
+    font-size: clamp(1.2em, 4vw, 1.6em);
+    border: none;
+    border-radius: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+#yesBtn {
+    background-color: white;
+    color: #ff4e88;
+    animation: pulse 1.5s infinite;
+}
+
+#yesBtn:hover {
+    background-color: #ffe6ef;
+    transform: scale(1.2);
+}
+
+#noBtn {
+    background-color: #ff2e63;
+    color: white;
+    position: relative; /* stays next to Yes */
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+@keyframes fadeSlideUp { 0% {opacity:0; transform:translateY(50px);} 100% {opacity:1; transform:translateY(0);} }
+
+.message {
+    font-size: clamp(1.5em,5vw,2em);
+    margin-top: 20px;
+    animation: fadeSlideUp 1.5s ease forwards;
+    font-weight: bold;
+}
+
+@media (max-width: 400px) {
+    #yesBtn, #noBtn { padding: 15px 30px; font-size: 1.3em; }
+    .polaroid { width: 80%; }
+}
+</style>
+</head>
+<body>
+
+<div id="bokehContainer"></div>
+
+<div class="container">
+    <h1 id="title">Buckle up, Princess 🏁❤️</h1>
+    <p id="introText">I’ve got the wheel, so hold on tight,<br>Buckle up love, your heart's about to take flight. Be my Valentine???</p>
+
+    <div class="buttons-container">
+        <button id="yesBtn">Yes 💕</button>
+        <button id="noBtn">No 😢</button>
+    </div>
+
+    <div class="polaroid" id="athenaPhoto">
+        <img src="athena-racing.jpg" alt="Princess racing helmet">
+        <div class="caption">Buckle up tight, I’ll make your heart take flight.<br>Be my Valentine, Princess, and let’s do this right!</div>
+    </div>
+
+    <div id="loveMessage" class="hidden message">
+        You just made me the happiest driver alive, Princess 🏎️💘
+    </div>
+</div>
+
+<audio id="loveAudio">
+    <source src="romantic.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const loveMessage = document.getElementById("loveMessage");
+const title = document.getElementById("title");
+const athenaPhoto = document.getElementById("athenaPhoto");
+const introText = document.getElementById("introText");
+const audio = document.getElementById("loveAudio");
+const bokehContainer = document.getElementById("bokehContainer");
+
+// Background floating symbols
+function createFloatingArt(count = 35) {
+    const symbols = ["🌸","❤️","💖","💘"];
+    for (let i = 0; i < count; i++) {
+        const art = document.createElement("div");
+        art.classList.add("floating-art");
+        art.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+        art.style.left = Math.random() * window.innerWidth + "px";
+        art.style.top = Math.random() * window.innerHeight + "px";
+        art.style.fontSize = (Math.random() * 70 + 40) + "px"; 
+        art.style.animationDuration = (Math.random() * 15 + 10) + "s"; 
+        bokehContainer.appendChild(art);
+    }
+}
+createFloatingArt();
+
+// Floating No button (just slide left/right slightly near its spot)
+noBtn.addEventListener("mouseenter", () => {
+    const offset = 900; // max slide distance
+    const newX = (Math.random() - 0.5) * offset;
+    const newY = (Math.random() - 0.5) * offset;
+
+    noBtn.style.transition = "transform 0.3s ease";
+    noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
+});
+
+// Yes button click
+yesBtn.addEventListener("click", () => {
+    title.innerText = "Locked in. Valentine secured! ❤️🏁";
+    loveMessage.classList.remove("hidden");
+
+    // Animate polaroid into view
+    athenaPhoto.style.opacity = "1";
+    athenaPhoto.style.transform = "translateY(0)";
+
+    yesBtn.style.display = "none";
+    noBtn.style.display = "none";
+    introText.style.display = "none";
+
+    audio.play().catch(e => console.log("Audio blocked"));
+    startConfetti();
+});
+
+// Confetti animation
+function startConfetti() {
+    const colors = ["#ff2e63", "#ff69b4", "#ffb6c1", "#ff9a9e", "#ffe6ef"];
+    const isMobile = window.innerWidth <= 600;
+    const interval = isMobile ? 200 : 100;
+
+    const confettiInterval = setInterval(() => {
+        const confetti = document.createElement("div");
+        confetti.style.position = "absolute";
+        confetti.style.width = confetti.style.height = Math.random() * 10 + 7 + "px";
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * window.innerWidth + "px";
+        confetti.style.top = "-20px";
+        confetti.style.opacity = Math.random() * 0.9 + 0.5;
+        confetti.style.borderRadius = "50%";
+        confetti.style.pointerEvents = "none";
+        confetti.style.zIndex = 20;
+
+        const driftX = (Math.random() - 0.5) * (isMobile ? 100 : 200);
+        const duration = Math.random() * 2 + 3;
+
+        document.body.appendChild(confetti);
+
+        setTimeout(() => {
+            confetti.style.transition = `transform ${duration}s linear, opacity ${duration}s linear`;
+            confetti.style.transform = `translate(${driftX}px, ${window.innerHeight + 50}px) rotate(${Math.random()*720}deg)`;
+            confetti.style.opacity = 0;
+        }, 50);
+
+        setTimeout(() => confetti.remove(), duration * 1000);
+    }, interval);
+
+    setTimeout(() => clearInterval(confettiInterval), 8000);
+}
+</script>
+
+</body>
+</html>
